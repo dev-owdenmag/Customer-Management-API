@@ -1,4 +1,4 @@
-from flask import Flask, requests, jsonify
+from flask import Flask, request, jsonify
 from database import init_app, db
 from flask_bcrypt import Bcrypt
 from models import User, Customer
