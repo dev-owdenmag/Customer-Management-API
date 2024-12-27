@@ -1,12 +1,23 @@
 from flask import Flask, requests, jsonify
+from database import init_app, db
 from flask_bcrypt import Bcrypt
+from models import User, Customer
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
+
+#Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///customer_management.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+init_app(app)
+
 bcrypt = Bcrypt(app)
 app.config['JWT_SECRET_KEY'] = '897b3fa8a51b166038997f6e236b78977a3d63f1925d8dfe100754ed2e8e68bd'
 
 jwt = JWTManager(app)
+
+@app.before_first_request
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -47,3 +58,5 @@ def topup_customer(id):
     db.session.commit()
     return jsonify({'message': 'Balance updated successfully', 'new_balance': customer.balance})
 
+if __name__=='__main__':
+    app.run(debug=True)
