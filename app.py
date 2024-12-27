@@ -1,6 +1,6 @@
 from flask import Flask, requests, jsonify
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -25,3 +25,25 @@ def login():
         token = create_access_token(identity=user.id)
         return jsonify({'token: token'}), 200
     return jsonify({'token': 'Invalid credentials'}), 401
+
+@qpp.route('/customers', methods=['GET'])
+def get_customers():
+    customers = Customer.query.all()
+    return jsonify([{'id': c.id, 'name': c.name, 'balance': c.balance} for c in customers])
+
+@app.route('/customers<int:id>', methods=['GET'])
+@jwt_required
+def get_customer(id):
+    customer =Customer.query.get_or_404(id)
+    return jsonify({'id': customer.id, 'name': customer.name, 'balance': customer.balance})
+
+@app.route('/customers/<int:id>topup', methods=['POST'])
+def topup_customer(id):
+    customer = Customer.query.get_or_404(id)
+    amount = request.json.get('amount', 0)
+    if amount <= 0:
+        return jsonify ({'message': 'Amount must be positive'}), 400
+    customer.balance += amount
+    db.session.commit()
+    return jsonify({'message': 'Balance updated successfully', 'new_balance': customer.balance})
+
