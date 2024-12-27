@@ -17,7 +17,7 @@ app.config['JWT_SECRET_KEY'] = '897b3fa8a51b166038997f6e236b78977a3d63f1925d8dfe
 
 jwt = JWTManager(app)
 
-@app.before_first_request
+# @app.before_first_request
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -37,7 +37,7 @@ def login():
         return jsonify({'token: token'}), 200
     return jsonify({'token': 'Invalid credentials'}), 401
 
-@qpp.route('/customers', methods=['GET'])
+@app.route('/customers', methods=['GET'])
 def get_customers():
     customers = Customer.query.all()
     return jsonify([{'id': c.id, 'name': c.name, 'balance': c.balance} for c in customers])
